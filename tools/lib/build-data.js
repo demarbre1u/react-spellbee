@@ -19,14 +19,25 @@ import {
   PLAYABLE_LETTERS_PATH,
 } from "./constants.js";
 import { join } from "path";
+import cliProgress from "cli-progress";
+import wc from "wc-stream";
+import chalk from "chalk";
 
 export async function buildData({ fetch }) {
-  const shouldFetch = fetch || (await promptFetch());
-  if (shouldFetch) {
-    await fetchData({ overwrite: true });
+  const alreadyExists = existsSync(DICT_PATH);
+
+  if (alreadyExists) {
+    if (fetch) {
+      console.log("Game data already exists. Skipping fetching.");
+    }
   } else {
-    console.log("Fetching required, the command will be terminated.");
-    process.exit(0);
+    const shouldFetch = fetch || (await promptFetch());
+    if (shouldFetch) {
+      await fetchData({ overwrite: true });
+    } else {
+      console.log("Fetching required, the command will be terminated.");
+      process.exit(0);
+    }
   }
 
   await buildParsedDict();
@@ -37,6 +48,8 @@ export async function buildData({ fetch }) {
 async function buildParsedDict() {
   console.log("Building the parsed dictionary...");
 
+  const lineCount = await getLineCount(DICT_PATH);
+
   return new Promise((resolve, reject) => {
     const lineReader = readline.createInterface({
       input: createReadStream(DICT_PATH),
@@ -46,7 +59,18 @@ async function buildParsedDict() {
       unlinkSync(PARSED_DICT_PATH);
     }
 
+    const progressBar = new cliProgress.SingleBar({
+      format: chalk.green("{bar}") + "| {percentage}% ({value} / {total})",
+      barCompleteChar: "\u2588",
+      barIncompleteChar: "\u2591",
+      hideCursor: true,
+    });
+
+    progressBar.start(lineCount, 1);
+
     lineReader.on("line", (line) => {
+      progressBar.increment();
+
       line = ASCIIFolder.foldReplacing(line);
       line = line.toLowerCase();
       if (!/^[a-z]+$/.test(line)) {
@@ -65,9 +89,15 @@ async function buildParsedDict() {
       appendFileSync(PARSED_DICT_PATH, `${line}\n`);
     });
 
-    lineReader.on("close", resolve);
+    lineReader.on("close", () => {
+      progressBar.stop();
+      resolve();
+    });
 
-    lineReader.on("error", reject);
+    lineReader.on("error", (err) => {
+      progressBar.stop();
+      reject(err);
+    });
   });
 }
 
@@ -75,6 +105,7 @@ async function buildPlayableLetters() {
   console.log("Building the playable letters file...");
 
   const playableLetters = new Set();
+  const lineCount = await getLineCount(PARSED_DICT_PATH);
 
   await new Promise((resolve, reject) => {
     const lineReader = readline.createInterface({
@@ -85,7 +116,18 @@ async function buildPlayableLetters() {
       unlinkSync(PLAYABLE_LETTERS_PATH);
     }
 
+    const progressBar = new cliProgress.SingleBar({
+      format: chalk.green("{bar}") + "| {percentage}% ({value} / {total})",
+      barCompleteChar: "\u2588",
+      barIncompleteChar: "\u2591",
+      hideCursor: true,
+    });
+
+    progressBar.start(lineCount, 1);
+
     lineReader.on("line", (line) => {
+      progressBar.increment();
+
       const letters = new Set(line.split("").sort());
 
       if (letters.size === MAX_LETTERS) {
@@ -99,9 +141,15 @@ async function buildPlayableLetters() {
       }
     });
 
-    lineReader.on("close", resolve);
+    lineReader.on("close", () => {
+      progressBar.stop();
+      resolve();
+    });
 
-    lineReader.on("error", reject);
+    lineReader.on("error", (err) => {
+      progressBar.stop();
+      reject(err);
+    });
   });
 
   for (const letters of playableLetters) {
@@ -112,21 +160,36 @@ async function buildPlayableLetters() {
 }
 
 async function buildPlayableLettersDict(playableLetters) {
-  console.log("Building the playable letter dictionaries...");
+  console.log("Building the playable letters dictionaries...");
 
   if (!existsSync(PLAYABLE_LETTERS_DIR)) {
     mkdirSync(PLAYABLE_LETTERS_DIR);
   }
+
+  const lineCount = await getLineCount(PARSED_DICT_PATH);
 
   return new Promise((resolve, reject) => {
     const lineReader = readline.createInterface({
       input: createReadStream(PARSED_DICT_PATH),
     });
 
+    const progressBar = new cliProgress.SingleBar({
+      format: chalk.green("{bar}") + "| {percentage}% ({value} / {total})",
+      barCompleteChar: "\u2588",
+      barIncompleteChar: "\u2591",
+      hideCursor: true,
+    });
+
+    progressBar.start(lineCount, 1);
+
     lineReader.on("line", (word) => {
       for (const letters of playableLetters) {
-        const regex = new RegExp(`^[${letters}]+$`);
-        if (!regex.test(word)) {
+        const lettersArray = letters.split("");
+
+        const invalid = word
+          .split("")
+          .some((letter) => !lettersArray.includes(letter));
+        if (invalid) {
           continue;
         }
 
@@ -135,10 +198,27 @@ async function buildPlayableLettersDict(playableLetters) {
           `${word}\n`
         );
       }
+
+      progressBar.increment();
     });
 
-    lineReader.on("close", resolve);
+    lineReader.on("close", () => {
+      progressBar.stop();
+      resolve();
+    });
 
-    lineReader.on("error", reject);
+    lineReader.on("error", (err) => {
+      progressBar.stop();
+      reject(err);
+    });
+  });
+}
+
+async function getLineCount(filepath) {
+  return new Promise((resolve, reject) => {
+    createReadStream(filepath)
+      .pipe(wc())
+      .on("data", (data) => resolve(data.line))
+      .on("error", reject);
   });
 }
