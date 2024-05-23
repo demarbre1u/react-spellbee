@@ -21,6 +21,16 @@ import {
 import { join } from "path";
 import { createProgressBar, getLineCount } from "./utils.js";
 
+/**
+ * Builds the game data by doing the following :
+ *  - parses the game dictionary, sanitizes words and filters invalid ones
+ *  - creates of file containing every possible combination of playable letters
+ *  - for each set of playable letters, creates of file containing every valid word
+ * @async
+ *
+ * @param {object} param
+ * @param {boolean} param.fetch Whether the game data should be fetched before building
+ */
 export async function buildData({ fetch }) {
   const alreadyExists = existsSync(DICT_PATH);
 
@@ -43,6 +53,12 @@ export async function buildData({ fetch }) {
   await buildPlayableLettersDict(playableLetters);
 }
 
+/**
+ * Reads through the base dictionary to build a parsed dictionary
+ *
+ * The parse dictionary contains valid words that have been formatted
+ * @async
+ */
 async function buildParsedDict() {
   console.log("Building the parsed dictionary...");
 
@@ -63,16 +79,21 @@ async function buildParsedDict() {
     lineReader.on("line", (line) => {
       progressBar.increment();
 
+      // Removing accents and formatting to lower case
       line = ASCIIFolder.foldReplacing(line);
       line = line.toLowerCase();
+
+      // If the word doesn't contain only letters, it is invalid
       if (!/^[a-z]+$/.test(line)) {
         return;
       }
 
+      // If the word is too short, it is invalid
       if (line.length < MIN_WORD_LENGTH) {
         return;
       }
 
+      // If the word contains too many different letters, it is invalid
       const letters = new Set(line.split(""));
       if (letters.size > MAX_LETTERS) {
         return;
@@ -93,6 +114,12 @@ async function buildParsedDict() {
   });
 }
 
+/**
+ * Reads through the parsed dictionary to build a set of playable letters
+ * @async
+ *
+ * @returns {Promise<Set<string>>} A set containing every combinations of playable letters
+ */
 async function buildPlayableLetters() {
   console.log("Building the playable letters file...");
 
@@ -116,6 +143,8 @@ async function buildPlayableLetters() {
 
       const letters = new Set(line.split("").sort());
 
+      // If the word contains the max number of unique letters allowed,
+      // then we found a valid combination of playable letters
       if (letters.size === MAX_LETTERS) {
         let sortedLetters = [];
         for (const letter of letters) {
@@ -145,6 +174,13 @@ async function buildPlayableLetters() {
   return playableLetters;
 }
 
+/**
+ * Reads through the playable letters and the parsed dictionary
+ *
+ * For each combination of playable letters,
+ * creates a file containing every valid words found in the parsed dictionary
+ * @async
+ */
 async function buildPlayableLettersDict(playableLetters) {
   console.log("Building the playable letters dictionaries...");
 
@@ -166,6 +202,8 @@ async function buildPlayableLettersDict(playableLetters) {
       for (const letters of playableLetters) {
         const lettersArray = letters.split("");
 
+        // If the word doesn't contain letters found in the current combination of playable letter,
+        // then it is invalid for this combination
         const invalid = word
           .split("")
           .some((letter) => !lettersArray.includes(letter));

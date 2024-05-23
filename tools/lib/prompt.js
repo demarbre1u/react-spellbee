@@ -1,5 +1,11 @@
 import inquirer from "inquirer";
 
+/**
+ * Prompts the user to ask them whether they would like to overwrite their data or not
+ * @async
+ *
+ * @returns {Promise<boolean>} What the user chose
+ */
 export async function promptOverride() {
   const { overwrite } = await inquirer.prompt([
     {
@@ -14,6 +20,12 @@ export async function promptOverride() {
   return overwrite;
 }
 
+/**
+ * Prompts the user to ask them whether they would like to fetch their data or not
+ * @async
+ *
+ * @returns {Promise<boolean>} What the user chose
+ */
 export async function promptFetch() {
   const { fetch } = await inquirer.prompt([
     {

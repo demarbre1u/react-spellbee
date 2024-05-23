@@ -3,6 +3,14 @@ import wc from "wc-stream";
 import chalk from "chalk";
 import cliProgress from "cli-progress";
 
+/**
+ * Returns the number of line of a file
+ * @async
+ *
+ * @param {string} filepath The path of the file
+ *
+ * @returns {Promise<number>} The number of line
+ */
 export async function getLineCount(filepath) {
   return new Promise((resolve, reject) => {
     createReadStream(filepath)
@@ -12,6 +20,11 @@ export async function getLineCount(filepath) {
   });
 }
 
+/**
+ * Creates a progress bar
+ *
+ * @returns {cliProgress.SingleBar} The progress bar
+ */
 export function createProgressBar() {
   const progressBar = new cliProgress.SingleBar({
     format: chalk.green("{bar}") + "| {percentage}% ({value} / {total})",
