@@ -23,5 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
+tools/data/dictionary.csv
+tools/data/parsed-dictionary.csv
 tools/out/playable-letters.csv
 tools/out/playable-letters-dict
