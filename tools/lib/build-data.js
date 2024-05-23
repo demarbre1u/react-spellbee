@@ -19,9 +19,7 @@ import {
   PLAYABLE_LETTERS_PATH,
 } from "./constants.js";
 import { join } from "path";
-import cliProgress from "cli-progress";
-import wc from "wc-stream";
-import chalk from "chalk";
+import { createProgressBar, getLineCount } from "./utils.js";
 
 export async function buildData({ fetch }) {
   const alreadyExists = existsSync(DICT_PATH);
@@ -59,13 +57,7 @@ async function buildParsedDict() {
       unlinkSync(PARSED_DICT_PATH);
     }
 
-    const progressBar = new cliProgress.SingleBar({
-      format: chalk.green("{bar}") + "| {percentage}% ({value} / {total})",
-      barCompleteChar: "\u2588",
-      barIncompleteChar: "\u2591",
-      hideCursor: true,
-    });
-
+    const progressBar = createProgressBar();
     progressBar.start(lineCount, 1);
 
     lineReader.on("line", (line) => {
@@ -116,13 +108,7 @@ async function buildPlayableLetters() {
       unlinkSync(PLAYABLE_LETTERS_PATH);
     }
 
-    const progressBar = new cliProgress.SingleBar({
-      format: chalk.green("{bar}") + "| {percentage}% ({value} / {total})",
-      barCompleteChar: "\u2588",
-      barIncompleteChar: "\u2591",
-      hideCursor: true,
-    });
-
+    const progressBar = createProgressBar();
     progressBar.start(lineCount, 1);
 
     lineReader.on("line", (line) => {
@@ -173,13 +159,7 @@ async function buildPlayableLettersDict(playableLetters) {
       input: createReadStream(PARSED_DICT_PATH),
     });
 
-    const progressBar = new cliProgress.SingleBar({
-      format: chalk.green("{bar}") + "| {percentage}% ({value} / {total})",
-      barCompleteChar: "\u2588",
-      barIncompleteChar: "\u2591",
-      hideCursor: true,
-    });
-
+    const progressBar = createProgressBar();
     progressBar.start(lineCount, 1);
 
     lineReader.on("line", (word) => {
@@ -211,14 +191,5 @@ async function buildPlayableLettersDict(playableLetters) {
       progressBar.stop();
       reject(err);
     });
-  });
-}
-
-async function getLineCount(filepath) {
-  return new Promise((resolve, reject) => {
-    createReadStream(filepath)
-      .pipe(wc())
-      .on("data", (data) => resolve(data.line))
-      .on("error", reject);
   });
 }
