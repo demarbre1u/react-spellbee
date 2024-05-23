@@ -1,5 +1,6 @@
 import ASCIIFolder from "fold-to-ascii";
 import readline from "readline";
+import process from "process";
 import {
   createReadStream,
   existsSync,
@@ -7,11 +8,27 @@ import {
   appendFileSync,
   mkdirSync,
 } from "node:fs";
-
-const MIN_WORD_LENGTH = 4;
-const MAX_LETTERS = 7;
+import { promptFetch } from "./prompt.js";
+import { fetchData } from "./fetch-data.js";
+import {
+  DICT_PATH,
+  MAX_LETTERS,
+  MIN_WORD_LENGTH,
+  PARSED_DICT_PATH,
+  PLAYABLE_LETTERS_DIR,
+  PLAYABLE_LETTERS_PATH,
+} from "./constants.js";
+import { join } from "path";
 
 export async function buildData({ fetch }) {
+  const shouldFetch = fetch || (await promptFetch());
+  if (shouldFetch) {
+    await fetchData({ overwrite: true });
+  } else {
+    console.log("Fetching required, the command will be terminated.");
+    process.exit(0);
+  }
+
   await buildParsedDict();
   const playableLetters = await buildPlayableLetters();
   await buildPlayableLettersDict(playableLetters);
@@ -22,11 +39,11 @@ async function buildParsedDict() {
 
   return new Promise((resolve, reject) => {
     const lineReader = readline.createInterface({
-      input: createReadStream("./data/dictionary.csv"),
+      input: createReadStream(DICT_PATH),
     });
 
-    if (existsSync("./data/parsed-dictionary.csv")) {
-      unlinkSync("./data/parsed-dictionary.csv");
+    if (existsSync(PARSED_DICT_PATH)) {
+      unlinkSync(PARSED_DICT_PATH);
     }
 
     lineReader.on("line", (line) => {
@@ -45,7 +62,7 @@ async function buildParsedDict() {
         return;
       }
 
-      appendFileSync("./data/parsed-dictionary.csv", `${line}\n`);
+      appendFileSync(PARSED_DICT_PATH, `${line}\n`);
     });
 
     lineReader.on("close", resolve);
@@ -61,17 +78,17 @@ async function buildPlayableLetters() {
 
   await new Promise((resolve, reject) => {
     const lineReader = readline.createInterface({
-      input: createReadStream("./data/parsed-dictionary.csv"),
+      input: createReadStream(PARSED_DICT_PATH),
     });
 
-    if (existsSync("./out/playable-letters.csv")) {
-      unlinkSync("./out/playable-letters.csv");
+    if (existsSync(PLAYABLE_LETTERS_PATH)) {
+      unlinkSync(PLAYABLE_LETTERS_PATH);
     }
 
     lineReader.on("line", (line) => {
       const letters = new Set(line.split("").sort());
 
-      if (letters.size === 7) {
+      if (letters.size === MAX_LETTERS) {
         let sortedLetters = [];
         for (const letter of letters) {
           sortedLetters.push(letter);
@@ -88,7 +105,7 @@ async function buildPlayableLetters() {
   });
 
   for (const letters of playableLetters) {
-    appendFileSync("./out/playable-letters.csv", `${letters}\n`);
+    appendFileSync(PLAYABLE_LETTERS_PATH, `${letters}\n`);
   }
 
   return playableLetters;
@@ -97,13 +114,13 @@ async function buildPlayableLetters() {
 async function buildPlayableLettersDict(playableLetters) {
   console.log("Building the playable letter dictionaries...");
 
-  if (!existsSync("./out/playable-letters-dict")) {
-    mkdirSync("./out/playable-letters-dict");
+  if (!existsSync(PLAYABLE_LETTERS_DIR)) {
+    mkdirSync(PLAYABLE_LETTERS_DIR);
   }
 
   return new Promise((resolve, reject) => {
     const lineReader = readline.createInterface({
-      input: createReadStream("./data/parsed-dictionary.csv"),
+      input: createReadStream(PARSED_DICT_PATH),
     });
 
     lineReader.on("line", (word) => {
@@ -114,7 +131,7 @@ async function buildPlayableLettersDict(playableLetters) {
         }
 
         appendFileSync(
-          `./out/playable-letters-dict/${letters}.csv`,
+          join(PLAYABLE_LETTERS_DIR, `${letters}.csv`),
           `${word}\n`
         );
       }
