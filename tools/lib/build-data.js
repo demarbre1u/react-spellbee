@@ -51,6 +51,8 @@ export async function buildData({ fetch }) {
   await buildParsedDict();
   const playableLetters = await buildPlayableLetters();
   await buildPlayableLettersDict(playableLetters);
+
+  console.log("Data built successfully");
 }
 
 /**
