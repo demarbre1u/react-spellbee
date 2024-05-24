@@ -23,6 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+public/*.csv
+public/playable-letters-dict
+public/playable-letters-dict/*.csv
+
 tools/data/dictionary.csv
 tools/data/parsed-dictionary.csv
 tools/out/playable-letters.csv
