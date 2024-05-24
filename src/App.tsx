@@ -98,6 +98,14 @@ function App() {
     wordInput.current.value = "";
   };
 
+  const submitLetter = (letter: string) => {
+    if (!wordInput.current) {
+      return;
+    }
+
+    wordInput.current.value += letter;
+  };
+
   if (!playableWords) {
     return <>loading data...</>;
   }
@@ -107,19 +115,54 @@ function App() {
       <div className="left-panel">
         <div className="letters">
           <div className="letters__row">
-            <div className="letters__row__letter">{currentLetters[0]}</div>
-            <div className="letters__row__letter">{currentLetters[1]}</div>
+            <div
+              className="letters__row__letter"
+              onClick={() => submitLetter(currentLetters[0])}
+            >
+              {currentLetters[0]}
+            </div>
+            <div
+              className="letters__row__letter"
+              onClick={() => submitLetter(currentLetters[1])}
+            >
+              {currentLetters[1]}
+            </div>
           </div>
 
           <div className="letters__row">
-            <div className="letters__row__letter">{currentLetters[2]}</div>
-            <div className="letters__row__letter">{currentLetters[3]}</div>
-            <div className="letters__row__letter">{currentLetters[4]}</div>
+            <div
+              className="letters__row__letter"
+              onClick={() => submitLetter(currentLetters[2])}
+            >
+              {currentLetters[2]}
+            </div>
+            <div
+              className="letters__row__letter"
+              onClick={() => submitLetter(currentLetters[3])}
+            >
+              {currentLetters[3]}
+            </div>
+            <div
+              className="letters__row__letter"
+              onClick={() => submitLetter(currentLetters[4])}
+            >
+              {currentLetters[4]}
+            </div>
           </div>
 
           <div className="letters__row">
-            <div className="letters__row__letter">{currentLetters[5]}</div>
-            <div className="letters__row__letter">{currentLetters[6]}</div>
+            <div
+              className="letters__row__letter"
+              onClick={() => submitLetter(currentLetters[5])}
+            >
+              {currentLetters[5]}
+            </div>
+            <div
+              className="letters__row__letter"
+              onClick={() => submitLetter(currentLetters[6])}
+            >
+              {currentLetters[6]}
+            </div>
           </div>
         </div>
 
