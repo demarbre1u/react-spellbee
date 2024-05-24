@@ -4,8 +4,13 @@ import "./App.css";
 const DICT_URL = "/react-spellbee/playable-letters.csv";
 const PLAYABLE_LETTERS_DIR = "/react-spellbee/playable-letters-dict";
 
+type Letter = {
+  letter: string;
+  isMandatory: boolean;
+};
+
 function App() {
-  const [currentLetters, setCurrentLetters] = useState<string[]>([]);
+  const [currentLetters, setCurrentLetters] = useState<Letter[]>([]);
   const [playableWords, setPlayableWords] = useState<string[]>([]);
   const [wordsPlayed, setWordsPlayed] = useState<string[]>([]);
 
@@ -26,7 +31,10 @@ function App() {
 
   const getPlayableLettersDictionary = useCallback(async () => {
     const response = await fetch(
-      `${PLAYABLE_LETTERS_DIR}/${currentLetters.join("")}.csv`
+      `${PLAYABLE_LETTERS_DIR}/${currentLetters
+        .map((l) => l.letter)
+        .sort()
+        .join("")}.csv`
     );
 
     if (!response.ok) {
@@ -46,7 +54,20 @@ function App() {
       const randomIndex = Math.round(Math.random() * result.length);
       const randomPlayableLetters = result[randomIndex];
 
-      setCurrentLetters(randomPlayableLetters.split(""));
+      const randomLetterIndex = Math.round(
+        Math.random() * randomPlayableLetters.length
+      );
+      const letters = randomPlayableLetters
+        .split("")
+        .map((letter, index) => {
+          return {
+            letter,
+            isMandatory: index === randomLetterIndex,
+          };
+        })
+        .sort((a) => (a.isMandatory ? 1 : -1));
+
+      setCurrentLetters(letters);
     })();
   }, []);
 
@@ -57,8 +78,12 @@ function App() {
 
     (async () => {
       const result = await getPlayableLettersDictionary();
-      setPlayableWords(result);
-      console.log(result);
+      const mandatoryLetter =
+        currentLetters.find((l) => l.isMandatory)?.letter || "";
+      const filteredResult = result.filter((w) => w.includes(mandatoryLetter));
+      console.log(filteredResult);
+
+      setPlayableWords(filteredResult);
     })();
   }, [currentLetters, getPlayableLettersDictionary]);
 
@@ -72,7 +97,9 @@ function App() {
     const word = wordInput.current.value;
 
     // If the word contains valid letters
-    const regex = new RegExp(`^[${currentLetters}]+$`);
+    const regex = new RegExp(
+      `^[${currentLetters.map((l) => l.letter).join("")}]+$`
+    );
     if (!regex.test(word)) {
       console.log("ne contient pas les bonnes lettres");
       return;
@@ -80,8 +107,16 @@ function App() {
 
     // If the word is a playable word
     if (!playableWords.includes(word)) {
-      console.log("mot invalide");
+      console.log("mot pas trouvé");
       wordInput.current.value = "";
+      return;
+    }
+
+    // If the word contains the mandatory letter
+    const mandatoryLetter =
+      currentLetters.find((l) => l.isMandatory)?.letter || "";
+    if (!word.includes(mandatoryLetter)) {
+      console.log("mot ne contient pas la lettre obligatoire");
       return;
     }
 
@@ -115,54 +150,23 @@ function App() {
       <div className="left-panel">
         <div className="letters">
           <div className="letters__row">
-            <div
-              className="letters__row__letter"
-              onClick={() => submitLetter(currentLetters[0])}
-            >
-              {currentLetters[0]}
-            </div>
-            <div
-              className="letters__row__letter"
-              onClick={() => submitLetter(currentLetters[1])}
-            >
-              {currentLetters[1]}
-            </div>
+            <Letter letter={currentLetters[0]?.letter} onClick={submitLetter} />
+            <Letter letter={currentLetters[1]?.letter} onClick={submitLetter} />
           </div>
 
           <div className="letters__row">
-            <div
-              className="letters__row__letter"
-              onClick={() => submitLetter(currentLetters[2])}
-            >
-              {currentLetters[2]}
-            </div>
-            <div
-              className="letters__row__letter"
-              onClick={() => submitLetter(currentLetters[3])}
-            >
-              {currentLetters[3]}
-            </div>
-            <div
-              className="letters__row__letter"
-              onClick={() => submitLetter(currentLetters[4])}
-            >
-              {currentLetters[4]}
-            </div>
+            <Letter letter={currentLetters[2]?.letter} onClick={submitLetter} />
+            <Letter
+              letter={currentLetters[6]?.letter}
+              isMandatory={true}
+              onClick={submitLetter}
+            />
+            <Letter letter={currentLetters[3]?.letter} onClick={submitLetter} />
           </div>
 
           <div className="letters__row">
-            <div
-              className="letters__row__letter"
-              onClick={() => submitLetter(currentLetters[5])}
-            >
-              {currentLetters[5]}
-            </div>
-            <div
-              className="letters__row__letter"
-              onClick={() => submitLetter(currentLetters[6])}
-            >
-              {currentLetters[6]}
-            </div>
+            <Letter letter={currentLetters[4]?.letter} onClick={submitLetter} />
+            <Letter letter={currentLetters[5]?.letter} onClick={submitLetter} />
           </div>
         </div>
 
@@ -181,5 +185,23 @@ function App() {
     </div>
   );
 }
+
+type LetterProps = {
+  letter: string;
+  isMandatory?: boolean;
+  onClick: (letter: string) => void;
+};
+const Letter = ({ letter, isMandatory, onClick }: LetterProps) => {
+  const classes = ["letters__row__letter"];
+  if (isMandatory) {
+    classes.push("letters__row__letter--mandatory");
+  }
+
+  return (
+    <div className={classes.join(" ")} onClick={() => onClick(letter)}>
+      {letter}
+    </div>
+  );
+};
 
 export default App;

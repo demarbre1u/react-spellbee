@@ -46,13 +46,17 @@ body {
   aspect-ratio: cos(30deg);
   clip-path: polygon(-50% 50%, 50% 100%, 150% 50%, 50% 0);
 
-  background-color: #b58a13;
+  background-color: #2f3247;
   color: white;
   font-size: 24px;
 
   text-transform: uppercase;
 
   height: 100px;
+}
+
+.letters__row__letter--mandatory {
+  background-color: #b58a13;
 }
 
 .letters__row {
