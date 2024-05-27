@@ -174,6 +174,11 @@ function App() {
     );
   };
 
+  const isPangram = (word: string) => {
+    const letters = new Set(word.split(""));
+    return letters.size === 7;
+  };
+
   if (!playableWords) {
     return <>loading data...</>;
   }
@@ -246,7 +251,16 @@ function App() {
         </div>
       </div>
 
-      <div className="right-panel">{wordsPlayed.sort().join(", ")}</div>
+      <div className="right-panel">
+        {wordsPlayed.sort().map((word) => (
+          <div
+            key={word}
+            className={`${isPangram(word) ? "word--pangram" : "word"}`}
+          >
+            {word}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
