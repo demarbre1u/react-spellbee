@@ -195,6 +195,7 @@ function App() {
             className="word-form__input"
             onBlur={({ target }) => target.focus()}
             autoFocus={true}
+            autoComplete="off"
           />
         </form>
         <div className="letters">
