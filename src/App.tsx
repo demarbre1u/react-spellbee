@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { FaDeleteLeft } from "react-icons/fa6";
+import { IoSend } from "react-icons/io5";
+import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
 import "./App.css";
 
 const DICT_URL = "/react-spellbee/playable-letters.csv";
@@ -11,6 +14,8 @@ type Letter = {
 
 function App() {
   const [currentLetters, setCurrentLetters] = useState<Letter[]>([]);
+  const [shuffledLetters, setShuffledLetters] = useState<Letter[]>([]);
+  const [mandatoryLetter, setMandatoryLetter] = useState<Letter>();
   const [playableWords, setPlayableWords] = useState<string[]>([]);
   const [wordsPlayed, setWordsPlayed] = useState<string[]>([]);
 
@@ -48,6 +53,19 @@ function App() {
     return playableWords;
   }, [currentLetters]);
 
+  const shuffleLetters = (letters: Letter[]) => {
+    setShuffledLetters(() => {
+      const tmpArray = [...letters];
+
+      for (let i = tmpArray.length - 1; i > 0; i--) {
+        const rand = Math.floor(Math.random() * (i + 1));
+        [tmpArray[i], tmpArray[rand]] = [tmpArray[rand], tmpArray[i]];
+      }
+
+      return tmpArray.filter((l) => !l.isMandatory);
+    });
+  };
+
   useEffect(() => {
     (async () => {
       const result = await getPlayableLetters();
@@ -68,6 +86,10 @@ function App() {
         .sort((a) => (a.isMandatory ? 1 : -1));
 
       setCurrentLetters(letters);
+      shuffleLetters(letters);
+
+      const mandatoryLetter = letters.find((l) => l.isMandatory);
+      setMandatoryLetter(mandatoryLetter);
     })();
   }, []);
 
@@ -94,7 +116,7 @@ function App() {
       return;
     }
 
-    const word = wordInput.current.value;
+    const word = wordInput.current.value.toLowerCase();
 
     // If the word contains valid letters
     const regex = new RegExp(
@@ -141,6 +163,17 @@ function App() {
     wordInput.current.value += letter;
   };
 
+  const removeLetter = () => {
+    if (!wordInput.current) {
+      return;
+    }
+
+    wordInput.current.value = wordInput.current.value.substring(
+      0,
+      wordInput.current.value.length - 1
+    );
+  };
+
   if (!playableWords) {
     return <>loading data...</>;
   }
@@ -148,28 +181,6 @@ function App() {
   return (
     <div className="app-wrapper">
       <div className="left-panel">
-        <div className="letters">
-          <div className="letters__row">
-            <Letter letter={currentLetters[0]?.letter} onClick={submitLetter} />
-            <Letter letter={currentLetters[1]?.letter} onClick={submitLetter} />
-          </div>
-
-          <div className="letters__row">
-            <Letter letter={currentLetters[2]?.letter} onClick={submitLetter} />
-            <Letter
-              letter={currentLetters[6]?.letter}
-              isMandatory={true}
-              onClick={submitLetter}
-            />
-            <Letter letter={currentLetters[3]?.letter} onClick={submitLetter} />
-          </div>
-
-          <div className="letters__row">
-            <Letter letter={currentLetters[4]?.letter} onClick={submitLetter} />
-            <Letter letter={currentLetters[5]?.letter} onClick={submitLetter} />
-          </div>
-        </div>
-
         <form action="" onSubmit={submitWord} className="word-form">
           <input
             ref={wordInput}
@@ -179,6 +190,60 @@ function App() {
             className="word-form__input"
           />
         </form>
+        <div className="letters">
+          <div className="letters__row">
+            <Letter
+              letter={shuffledLetters[0]?.letter}
+              onClick={submitLetter}
+            />
+            <Letter
+              letter={shuffledLetters[1]?.letter}
+              onClick={submitLetter}
+            />
+          </div>
+
+          <div className="letters__row">
+            <Letter
+              letter={shuffledLetters[2]?.letter}
+              onClick={submitLetter}
+            />
+            <Letter
+              letter={mandatoryLetter?.letter}
+              isMandatory={true}
+              onClick={submitLetter}
+            />
+            <Letter
+              letter={shuffledLetters[3]?.letter}
+              onClick={submitLetter}
+            />
+          </div>
+
+          <div className="letters__row">
+            <Letter
+              letter={shuffledLetters[4]?.letter}
+              onClick={submitLetter}
+            />
+            <Letter
+              letter={shuffledLetters[5]?.letter}
+              onClick={submitLetter}
+            />
+          </div>
+        </div>
+
+        <div className="action-buttons">
+          <button className="action-buttons__button" onClick={removeLetter}>
+            <FaDeleteLeft />
+          </button>
+          <button
+            className="action-buttons__button"
+            onClick={() => shuffleLetters(currentLetters)}
+          >
+            <GiPerspectiveDiceSixFacesRandom />
+          </button>
+          <button className="action-buttons__button" onClick={submitWord}>
+            <IoSend />
+          </button>
+        </div>
       </div>
 
       <div className="right-panel">{wordsPlayed.sort().join(", ")}</div>
@@ -187,11 +252,11 @@ function App() {
 }
 
 type LetterProps = {
-  letter: string;
+  letter?: string;
   isMandatory?: boolean;
   onClick: (letter: string) => void;
 };
-const Letter = ({ letter, isMandatory, onClick }: LetterProps) => {
+const Letter = ({ letter = "", isMandatory, onClick }: LetterProps) => {
   const classes = ["letters__row__letter"];
   if (isMandatory) {
     classes.push("letters__row__letter--mandatory");
