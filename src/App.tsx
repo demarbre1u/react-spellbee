@@ -193,6 +193,8 @@ function App() {
             name=""
             id="word"
             className="word-form__input"
+            onBlur={({ target }) => target.focus()}
+            autoFocus={true}
           />
         </form>
         <div className="letters">
