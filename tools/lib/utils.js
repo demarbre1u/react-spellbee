@@ -12,12 +12,12 @@ import wc from "wc-stream";
  * @returns {Promise<number>} The number of line
  */
 export async function getLineCount(filepath) {
-    return new Promise((resolve, reject) => {
-        createReadStream(filepath)
-            .pipe(wc())
-            .on("data", data => resolve(data.line))
-            .on("error", reject);
-    });
+  return new Promise((resolve, reject) => {
+    createReadStream(filepath)
+      .pipe(wc())
+      .on("data", data => resolve(data.line))
+      .on("error", reject);
+  });
 }
 
 /**
@@ -26,12 +26,12 @@ export async function getLineCount(filepath) {
  * @returns {cliProgress.SingleBar} The progress bar
  */
 export function createProgressBar() {
-    const progressBar = new cliProgress.SingleBar({
-        format: chalk.green("{bar}") + "| {percentage}% ({value} / {total})",
-        barCompleteChar: "\u2588",
-        barIncompleteChar: "\u2591",
-        hideCursor: true
-    });
+  const progressBar = new cliProgress.SingleBar({
+    format: chalk.green("{bar}") + "| {percentage}% ({value} / {total})",
+    barCompleteChar: "\u2588",
+    barIncompleteChar: "\u2591",
+    hideCursor: true
+  });
 
-    return progressBar;
+  return progressBar;
 }

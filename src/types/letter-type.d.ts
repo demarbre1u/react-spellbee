@@ -1,4 +1,4 @@
 export type LetterType = {
-    letter: string;
-    isMandatory: boolean;
+  letter: string;
+  isMandatory: boolean;
 };

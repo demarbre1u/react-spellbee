@@ -1,23 +1,23 @@
 .action-buttons__button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: border-color 300ms;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: border-color 300ms;
 
-    cursor: pointer;
-    border: 2px solid var(--grey);
+  cursor: pointer;
+  border: 2px solid var(--grey);
 
-    border-radius: 50%;
+  border-radius: 50%;
 
-    background-color: transparent;
+  background-color: transparent;
 
-    width: 50px;
-    height: 50px;
-    color: white;
-    font-size: 22px;
+  width: 50px;
+  height: 50px;
+  color: white;
+  font-size: 22px;
 }
 
 .action-buttons__button:hover {
-    transition: border-color 300ms;
-    border: 2px solid white;
+  transition: border-color 300ms;
+  border: 2px solid white;
 }

@@ -13,19 +13,19 @@ import { promptOverride } from "./prompt.js";
  * @param {boolean} param.overwrite Whether already existing data should be overwritten
  */
 export async function fetchData({ overwrite }) {
-    const alreadyExists = fs.existsSync(DICT_PATH);
-    if (alreadyExists) {
-        const shouldOverwrite = overwrite || (await promptOverride());
-        if (!shouldOverwrite) {
-            process.exit(0);
-        }
+  const alreadyExists = fs.existsSync(DICT_PATH);
+  if (alreadyExists) {
+    const shouldOverwrite = overwrite || (await promptOverride());
+    if (!shouldOverwrite) {
+      process.exit(0);
     }
+  }
 
-    console.log("Fetching data...");
+  console.log("Fetching data...");
 
-    stream.Readable.fromWeb((await fetch(DICT_URL)).body).pipe(
-        fs.createWriteStream(DICT_PATH)
-    );
+  stream.Readable.fromWeb((await fetch(DICT_URL)).body).pipe(
+    fs.createWriteStream(DICT_PATH)
+  );
 
-    console.log("Data fetched successfully");
+  console.log("Data fetched successfully");
 }

@@ -1,48 +1,48 @@
 body {
-    margin: 0;
+  margin: 0;
 
-    background-color: #000;
-    padding: 0;
+  background-color: #000;
+  padding: 0;
 
-    font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 
-    --yellow: #b58a13;
-    --grey: #2f3247;
-    --invalid: #777;
-    --correct: #688231;
+  --yellow: #b58a13;
+  --grey: #2f3247;
+  --invalid: #777;
+  --correct: #688231;
 }
 
 .app-wrapper {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    width: 100vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: 100vw;
 
-    height: 100vh;
+  height: 100vh;
 }
 
 .action-buttons {
-    display: flex;
-    gap: 15px;
+  display: flex;
+  gap: 15px;
 }
 
 .left-panel {
-    gap: 20px;
+  gap: 20px;
 }
 
 .left-panel,
 .right-panel {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 50vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 50vw;
 
-    color: white;
+  color: white;
 }
 
 .word--pangram {
-    color: var(--yellow);
-    font-weight: bold;
+  color: var(--yellow);
+  font-weight: bold;
 }
