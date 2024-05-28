@@ -1,51 +1,50 @@
 .word-form__input {
-  border: none;
-  outline: none;
-  background-color: transparent;
-  height: 0;
-  width: 0;
-  visibility: none;
+    visibility: none;
+    outline: none;
+    border: none;
+    background-color: transparent;
+    width: 0;
+    height: 0;
 }
 
 .word-form__display__value {
-  font-size: 34px;
-  font-weight: bold;
-  letter-spacing: 1.5px;
+    font-weight: bold;
+    font-size: 34px;
+    letter-spacing: 1.5px;
 }
 
 .word-form__display__carret {
-  font-size: 40px;
-  font-weight: bolder;
-  padding: 0px 0px;
-  color: var(--yellow);
+    opacity: 1;
 
-  opacity: 1;
-
-  animation: blink infinite 1000ms;
+    animation: blink infinite 1000ms;
+    padding: 0px 0px;
+    color: var(--yellow);
+    font-weight: bolder;
+    font-size: 40px;
 }
 
 .word-form__display__value__letter--mandatory {
-  color: var(--yellow);
+    color: var(--yellow);
 }
 
 .word-form__display__value__letter--invalid {
-  color: var(--invalid);
+    color: var(--invalid);
 }
 
 @keyframes blink {
-  0% {
-    opacity: 1;
-  }
-  49% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-  99% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+    0% {
+        opacity: 1;
+    }
+    49% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    99% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
