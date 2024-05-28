@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaDeleteLeft } from "react-icons/fa6";
 import { IoSend } from "react-icons/io5";
 import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
@@ -18,8 +18,7 @@ function App() {
   const [mandatoryLetter, setMandatoryLetter] = useState<Letter>();
   const [playableWords, setPlayableWords] = useState<string[]>([]);
   const [wordsPlayed, setWordsPlayed] = useState<string[]>([]);
-
-  const wordInput = useRef<HTMLInputElement | null>(null);
+  const [wordInput, setWordInput] = useState<string>("");
 
   const getPlayableLetters = async () => {
     const response = await fetch(DICT_URL);
@@ -69,10 +68,10 @@ function App() {
   useEffect(() => {
     (async () => {
       const result = await getPlayableLetters();
-      const randomIndex = Math.round(Math.random() * result.length);
+      const randomIndex = Math.floor(Math.random() * result.length);
       const randomPlayableLetters = result[randomIndex];
 
-      const randomLetterIndex = Math.round(
+      const randomLetterIndex = Math.floor(
         Math.random() * randomPlayableLetters.length
       );
       const letters = randomPlayableLetters
@@ -112,11 +111,11 @@ function App() {
   const submitWord = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!wordInput.current?.value) {
+    if (!wordInput) {
       return;
     }
 
-    const word = wordInput.current.value.toLowerCase();
+    const word = wordInput.toLowerCase();
 
     // If the word contains valid letters
     const regex = new RegExp(
@@ -130,7 +129,7 @@ function App() {
     // If the word is a playable word
     if (!playableWords.includes(word)) {
       console.log("mot pas trouvé");
-      wordInput.current.value = "";
+      setWordInput("");
       return;
     }
 
@@ -145,33 +144,26 @@ function App() {
     // If the word has already been played
     if (wordsPlayed.includes(word)) {
       console.log("déjà joué");
-      wordInput.current.value = "";
+      setWordInput("");
       return;
     }
 
     console.log("mot valide");
     setWordsPlayed((state) => [...state, word]);
 
-    wordInput.current.value = "";
+    setWordInput("");
   };
 
   const submitLetter = (letter: string) => {
-    if (!wordInput.current) {
-      return;
-    }
-
-    wordInput.current.value += letter;
+    setWordInput((word) => word + letter);
   };
 
   const removeLetter = () => {
-    if (!wordInput.current) {
+    if (!wordInput) {
       return;
     }
 
-    wordInput.current.value = wordInput.current.value.substring(
-      0,
-      wordInput.current.value.length - 1
-    );
+    setWordInput((word) => word.substring(0, word.length - 1));
   };
 
   const isPangram = (word: string) => {
@@ -188,7 +180,6 @@ function App() {
       <div className="left-panel">
         <form action="" onSubmit={submitWord} className="word-form">
           <input
-            ref={wordInput}
             type="text"
             name=""
             id="word"
@@ -196,8 +187,47 @@ function App() {
             onBlur={({ target }) => target.focus()}
             autoFocus={true}
             autoComplete="off"
+            value={wordInput}
+            onChange={(e) => setWordInput(e.target.value)}
           />
+
+          <div className="word-form__display">
+            <span className="word-form__display__value">
+              {wordInput.split("").map((letter, index) => {
+                const formattedLetter = letter.toUpperCase();
+                if (letter === mandatoryLetter?.letter) {
+                  return (
+                    <span
+                      key={index}
+                      className="form__display__value__letter--mandatory"
+                    >
+                      {formattedLetter}
+                    </span>
+                  );
+                }
+
+                if (currentLetters.find((l) => l.letter === letter)) {
+                  return (
+                    <span key={index} className="form__display__value__letter">
+                      {formattedLetter}
+                    </span>
+                  );
+                }
+
+                return (
+                  <span
+                    key={index}
+                    className="form__display__value__letter--invalid"
+                  >
+                    {formattedLetter}
+                  </span>
+                );
+              })}
+            </span>
+            <span className="word-form__display__carret">|</span>
+          </div>
         </form>
+
         <div className="letters">
           <div className="letters__row">
             <Letter

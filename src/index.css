@@ -8,6 +8,7 @@ body {
 
   --yellow: #b58a13;
   --grey: #2f3247;
+  --invalid: #777;
 }
 
 .app-wrapper {
@@ -52,6 +53,7 @@ body {
   background-color: var(--grey);
   color: white;
   font-size: 24px;
+  font-weight: bold;
 
   text-transform: uppercase;
 
@@ -69,14 +71,53 @@ body {
 .word-form__input {
   border: none;
   outline: none;
-  background-color: var(--grey);
-  border-radius: 100vmax;
-  padding: 10px 20px;
+  background-color: transparent;
+  height: 0;
+  width: 0;
+  visibility: none;
+}
 
-  text-align: center;
-  text-transform: uppercase;
-  color: white;
-  font-size: 20px;
+.word-form__display__value {
+  font-size: 34px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+}
+
+.word-form__display__carret {
+  font-size: 40px;
+  font-weight: bolder;
+  padding: 0px 0px;
+  color: var(--yellow);
+
+  opacity: 1;
+
+  animation: blink infinite 1000ms;
+}
+
+.form__display__value__letter--mandatory {
+  color: var(--yellow);
+}
+
+.form__display__value__letter--invalid {
+  color: var(--invalid);
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  49% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  99% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .action-buttons {
