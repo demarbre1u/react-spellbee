@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FaDeleteLeft } from "react-icons/fa6";
 import { IoSend } from "react-icons/io5";
 import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
@@ -122,13 +122,13 @@ function App() {
       `^[${currentLetters.map((l) => l.letter).join("")}]+$`
     );
     if (!regex.test(word)) {
-      console.log("ne contient pas les bonnes lettres");
+      showNotification("Mauvaises lettres");
       return;
     }
 
     // If the word is a playable word
     if (!playableWords.includes(word)) {
-      console.log("mot pas trouvé");
+      showNotification("Mot inconnu");
       setWordInput("");
       return;
     }
@@ -137,18 +137,22 @@ function App() {
     const mandatoryLetter =
       currentLetters.find((l) => l.isMandatory)?.letter || "";
     if (!word.includes(mandatoryLetter)) {
-      console.log("mot ne contient pas la lettre obligatoire");
+      showNotification("Lettre manquante obligatoire");
       return;
     }
 
     // If the word has already been played
     if (wordsPlayed.includes(word)) {
-      console.log("déjà joué");
+      showNotification("Mot déjà trouvé");
       setWordInput("");
       return;
     }
 
-    console.log("mot valide");
+    if (isPangram(word)) {
+      showNotification("Pangramme !", true);
+    } else {
+      showNotification("Bravo !", true);
+    }
     setWordsPlayed((state) => [...state, word]);
 
     setWordInput("");
@@ -171,6 +175,31 @@ function App() {
     return letters.size === 7;
   };
 
+  const [notificationMessage, setNotificationMessage] = useState<string>("");
+  const [notificationClasses, setNotificationClasses] = useState<string[]>([
+    "notification",
+    "notification--hide",
+  ]);
+  const notificationTimeout = useRef<number | null>(null);
+  const showNotification = (message: string, isCorrect: boolean = false) => {
+    setNotificationMessage(message);
+
+    const classes = ["notification"];
+    if (isCorrect) {
+      classes.push("notification--correct");
+    }
+
+    setNotificationClasses(classes);
+
+    if (notificationTimeout.current) {
+      clearTimeout(notificationTimeout.current);
+    }
+
+    notificationTimeout.current = setTimeout(() => {
+      setNotificationClasses((classes) => [...classes, "notification--hide"]);
+    }, 2000);
+  };
+
   if (!playableWords) {
     return <>loading data...</>;
   }
@@ -178,6 +207,12 @@ function App() {
   return (
     <div className="app-wrapper">
       <div className="left-panel">
+        <div className="notification-wrapper">
+          <div className={notificationClasses.join(" ")}>
+            {notificationMessage || ""}
+          </div>
+        </div>
+
         <form action="" onSubmit={submitWord} className="word-form">
           <input
             type="text"
