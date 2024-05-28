@@ -1,0 +1,22 @@
+.notification-wrapper {
+  height: 30px;
+}
+
+.notification {
+  opacity: 1;
+  background-color: var(--grey);
+  padding: 8px 20px;
+  border-radius: 5px;
+
+  transition: opacity 750ms;
+}
+
+.notification--correct {
+  background-color: var(--correct);
+}
+
+.notification--hide {
+  opacity: 0;
+
+  transition: opacity 750ms;
+}

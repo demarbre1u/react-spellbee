@@ -1,0 +1,24 @@
+.letters__row__letter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+  user-select: none;
+
+  aspect-ratio: cos(30deg);
+  clip-path: polygon(-50% 50%, 50% 100%, 150% 50%, 50% 0);
+
+  background-color: var(--grey);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+
+  text-transform: uppercase;
+
+  height: 100px;
+}
+
+.letters__row__letter--mandatory {
+  background-color: var(--yellow);
+}
