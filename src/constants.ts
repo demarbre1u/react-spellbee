@@ -1,3 +1,6 @@
+export const WORD_MIN_LENGTH = 4;
+export const PANGRAM_SCORE = 10;
+
 export const GAME = {
   LOADING: "INVALID_LETTERS",
   READY: "READY",

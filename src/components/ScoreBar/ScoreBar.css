@@ -1,0 +1,39 @@
+.score-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.score-bar__gauge {
+  background-color: var(--grey);
+  width: 250px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.score-bar__gauge__content {
+  background-color: var(--yellow);
+  height: 100%;
+}
+
+.score-bar__base-score,
+.score-bar__max-score {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+
+  font-size: 12px;
+}
+
+.score-bar__base-score {
+  transform: translateX(1px);
+  background-color: var(--yellow);
+}
+
+.score-bar__max-score {
+  transform: translateX(-1px);
+  background-color: var(--grey);
+}

@@ -7,12 +7,13 @@ import "./App.css";
 import { Button } from "./components/Button/Button";
 import { Honeycomb } from "./components/Honeycomb/Honeycomb";
 import { Notification } from "./components/Notification/Notification";
+import { ScoreBar } from "./components/ScoreBar/ScoreBar";
 import { WordInput } from "./components/WordInput/WordInput";
 import { GAME, WORD } from "./constants";
 import { useGame } from "./hooks/useGame";
 import { useInput } from "./hooks/useInput";
 import { useNotification } from "./hooks/useNotification";
-import { isPangram } from "./utils";
+import { getWordScore, isPangram } from "./utils";
 
 function App() {
   const {
@@ -23,7 +24,10 @@ function App() {
     shuffledLetters,
     shuffleLetters,
     wordsPlayed,
-    setWordsPlayed
+    setWordPlayed,
+    maxScore,
+    currentScore,
+    setCurrentScore
   } = useGame();
   const { notificationOptions, showNotification } = useNotification();
   const { value, setValue, removeLetter } = useInput();
@@ -31,7 +35,9 @@ function App() {
   const submitWord = (e: React.FormEvent) => {
     e.preventDefault();
 
-    switch (validateWord(value)) {
+    let wordScore = 0;
+    const formattedValue = value.toLowerCase();
+    switch (validateWord(formattedValue)) {
       case WORD.INVALID_LETTERS:
         showNotification("Mauvaises lettres");
         break;
@@ -47,14 +53,18 @@ function App() {
         setValue("");
         break;
       case WORD.CORRECT:
-        showNotification("Bravo !", true);
+        wordScore = getWordScore(formattedValue);
+        showNotification(`Bravo ! +${wordScore}`, true);
         setValue("");
-        setWordsPlayed(words => [...words, value.toLowerCase()]);
+        setWordPlayed(formattedValue);
+        setCurrentScore(wordScore);
         break;
       case WORD.PANGRAM:
-        showNotification("Pangramme !", true);
+        wordScore = getWordScore(formattedValue);
+        showNotification(`Pangramme ! +${wordScore}`, true);
         setValue("");
-        setWordsPlayed(words => [...words, value.toLowerCase()]);
+        setWordPlayed(formattedValue);
+        setCurrentScore(wordScore);
         break;
     }
   };
@@ -68,6 +78,8 @@ function App() {
       return (
         <div className="app-wrapper">
           <div className="left-panel">
+            <ScoreBar score={currentScore} maxScore={maxScore} />
+
             <Notification {...notificationOptions} />
 
             <WordInput

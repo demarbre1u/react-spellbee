@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
 
-import { GAME, WORD } from "../constants";
+import { GAME, WORD, WORD_MIN_LENGTH } from "../constants";
+import { GameDataType } from "../types/game-data-type";
 import { LetterType } from "../types/letter-type";
-import { getRandomIndex, isPangram } from "../utils";
+import { getRandomIndex, getWordScore, isPangram } from "../utils";
 
 const DICT_URL = "/react-spellbee/playable-letters.csv";
 const PLAYABLE_LETTERS_DIR = "/react-spellbee/playable-letters-dict";
 
 export const useGame = () => {
-  const [gameState, setGameState] = useState<string>(GAME.LOADING);
-  const [currentLetters, setCurrentLetters] = useState<LetterType[]>([]);
-  const [shuffledLetters, setShuffledLetters] = useState<LetterType[]>([]);
-  const [mandatoryLetter, setMandatoryLetter] = useState<LetterType>();
-  const [playableWords, setPlayableWords] = useState<string[]>([]);
-  const [wordsPlayed, setWordsPlayed] = useState<string[]>([]);
+  const [gameData, setGameData] = useState<GameDataType>({
+    gameState: GAME.LOADING,
+    currentLetters: [],
+    shuffledLetters: [],
+    mandatoryLetter: { letter: "", isMandatory: false },
+    playableWords: [],
+    wordsPlayed: [],
+    currentScore: 0,
+    maxScore: 0
+  });
 
   const getPlayableLetters = async () => {
     const response = await fetch(DICT_URL);
@@ -46,7 +51,7 @@ export const useGame = () => {
   };
 
   const shuffleLetters = (letters: LetterType[]) => {
-    setShuffledLetters(() => {
+    setGameData(data => {
       const tmpArray = [...letters];
 
       for (let i = tmpArray.length - 1; i > 0; i--) {
@@ -54,7 +59,9 @@ export const useGame = () => {
         [tmpArray[i], tmpArray[rand]] = [tmpArray[rand], tmpArray[i]];
       }
 
-      return tmpArray.filter(l => !l.isMandatory);
+      const shuffledLetters = tmpArray.filter(l => !l.isMandatory);
+
+      return { ...data, shuffledLetters };
     });
   };
 
@@ -75,25 +82,33 @@ export const useGame = () => {
           })
           .sort(a => (a.isMandatory ? 1 : -1));
 
-        setCurrentLetters(letters);
-        shuffleLetters(letters);
-
         const mandatoryLetter = letters.find(l => l.isMandatory);
-        setMandatoryLetter(mandatoryLetter);
 
         const dictionary = await getPlayableLettersDictionary(letters);
-        const filteredResult = dictionary.filter(w =>
+        const playableWords = dictionary.filter(w =>
           w.includes(mandatoryLetter?.letter || "")
         );
 
-        console.log(filteredResult);
+        const score = playableWords.reduce(
+          (total, word) => total + getWordScore(word),
+          0
+        );
 
-        setPlayableWords(filteredResult);
+        setGameData({
+          gameState: GAME.READY,
+          currentLetters: letters,
+          shuffledLetters: letters,
+          mandatoryLetter: mandatoryLetter,
+          playableWords: playableWords,
+          wordsPlayed: [],
+          currentScore: 0,
+          maxScore: score
+        });
 
-        setGameState(GAME.READY);
+        console.log(playableWords);
       } catch (err) {
         console.error("Error while fetching the playable letters file", err);
-        setGameState(GAME.ERROR);
+        setGameData(data => ({ ...data, gameState: GAME.ERROR }));
       }
     })();
   }, []);
@@ -103,6 +118,9 @@ export const useGame = () => {
       return;
     }
 
+    const currentLetters = gameData.currentLetters;
+    const playableWords = gameData.playableWords;
+    const wordsPlayed = gameData.wordsPlayed;
     const formattedWord = word.toLowerCase();
 
     // If the word doesn't contain valid letters
@@ -110,6 +128,10 @@ export const useGame = () => {
       `^[${currentLetters.map(l => l.letter).join("")}]+$`
     );
     if (!regex.test(formattedWord)) {
+      return WORD.INVALID_LETTERS;
+    }
+
+    if (formattedWord.length < WORD_MIN_LENGTH) {
       return WORD.INVALID_LETTERS;
     }
 
@@ -137,14 +159,25 @@ export const useGame = () => {
     }
   };
 
+  const setWordPlayed = (word: string) => {
+    setGameData(data => ({
+      ...data,
+      wordsPlayed: [...data.wordsPlayed, word]
+    }));
+  };
+
+  const setCurrentScore = (score: number) => {
+    setGameData(data => ({
+      ...data,
+      currentScore: data.currentScore + score
+    }));
+  };
+
   return {
-    gameState,
-    validateWord,
-    currentLetters,
-    mandatoryLetter,
-    shuffledLetters,
+    ...gameData,
     shuffleLetters,
-    wordsPlayed,
-    setWordsPlayed
+    validateWord,
+    setWordPlayed,
+    setCurrentScore
   };
 };
