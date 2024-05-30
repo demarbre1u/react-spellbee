@@ -1,13 +1,15 @@
 .score-bar {
   display: flex;
+  position: relative;
   justify-content: center;
   align-items: center;
 }
 
 .score-bar__gauge {
+  border-radius: 100vmax;
   background-color: var(--grey);
   width: 250px;
-  height: 6px;
+  height: 2px;
   overflow: hidden;
 }
 
@@ -19,21 +21,23 @@
 .score-bar__base-score,
 .score-bar__max-score {
   display: flex;
+  position: absolute;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
 
-  font-size: 12px;
+  font-weight: lighter;
+  font-size: 14px;
 }
 
 .score-bar__base-score {
-  transform: translateX(1px);
+  z-index: 9;
   background-color: var(--yellow);
 }
 
 .score-bar__max-score {
-  transform: translateX(-1px);
+  right: -20px;
   background-color: var(--grey);
 }

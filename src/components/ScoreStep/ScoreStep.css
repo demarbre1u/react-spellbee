@@ -1,0 +1,12 @@
+.score-bar__gauge__step {
+  position: absolute;
+  top: -4px;
+  border-radius: 50%;
+  background-color: var(--grey);
+  width: 10px;
+  height: 10px;
+}
+
+.score-bar__gauge__step--reached {
+  background-color: var(--yellow);
+}
