@@ -105,7 +105,9 @@ export const useGame = () => {
           maxScore: score
         });
 
-        console.log(playableWords);
+        console.log(
+          playableWords.sort((a, b) => getWordScore(b) - getWordScore(a))
+        );
       } catch (err) {
         console.error("Error while fetching the playable letters file", err);
         setGameData(data => ({ ...data, gameState: GAME.ERROR }));
