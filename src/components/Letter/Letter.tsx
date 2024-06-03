@@ -13,7 +13,7 @@ export const Letter = ({ letter = "", isMandatory, onClick }: LetterProps) => {
   }
 
   return (
-    <div className={classes.join(" ")} onClick={() => onClick(letter)}>
+    <div className={classes.join(" ")} onMouseDown={() => onClick(letter)}>
       {letter}
     </div>
   );
