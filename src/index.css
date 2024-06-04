@@ -8,8 +8,10 @@ body {
 
   --yellow: #b58a13;
   --grey: #2f3247;
+  --light-grey: #3a3d52;
   --invalid: #777;
   --correct: #688231;
+  --dark-yellow: #464237;
 }
 
 .app-wrapper {
@@ -28,11 +30,11 @@ body {
 }
 
 .left-panel {
+  flex: 1;
   gap: 20px;
 }
 
-.left-panel,
-.right-panel {
+.left-panel {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -40,9 +42,4 @@ body {
   width: 50vw;
 
   color: white;
-}
-
-.word--pangram {
-  color: var(--yellow);
-  font-weight: bold;
 }

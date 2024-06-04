@@ -9,11 +9,12 @@ import { Honeycomb } from "./components/Honeycomb/Honeycomb";
 import { Notification } from "./components/Notification/Notification";
 import { ScoreBar } from "./components/ScoreBar/ScoreBar";
 import { WordInput } from "./components/WordInput/WordInput";
+import { WordList } from "./components/WordList/WordList";
 import { GAME, WORD } from "./constants";
 import { useGame } from "./hooks/useGame";
 import { useInput } from "./hooks/useInput";
 import { useNotification } from "./hooks/useNotification";
-import { getWordScore, isPangram } from "./utils";
+import { getWordScore } from "./utils";
 
 function App() {
   const {
@@ -107,14 +108,7 @@ function App() {
           </div>
 
           <div className="right-panel">
-            {wordsPlayed.sort().map(word => (
-              <div
-                key={word}
-                className={`${isPangram(word) ? "word--pangram" : "word"}`}
-              >
-                {word}
-              </div>
-            ))}
+            <WordList wordsPlayed={wordsPlayed} />
           </div>
         </div>
       );

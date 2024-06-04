@@ -1,0 +1,38 @@
+.word-list {
+  box-sizing: border-box;
+  margin: 20px;
+  border-radius: 6px;
+  background-color: var(--light-grey);
+
+  width: 220px;
+  height: calc(100vh - 40px);
+  overflow-y: auto;
+  color: white;
+}
+
+.word-list__title {
+  background-color: var(--grey);
+  padding: 12px 0px;
+  font-size: 16px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.word-list__list {
+  box-sizing: border-box;
+  padding: 5px 0px;
+  height: calc(100vh - 40px - 42px);
+  overflow-y: auto;
+}
+
+.word-list__list__word,
+.word-list__list__word--pangram {
+  padding: 5px 10px;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.word-list__list__word--pangram {
+  color: var(--yellow);
+  font-weight: bold;
+}
