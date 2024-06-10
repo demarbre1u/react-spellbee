@@ -134,7 +134,7 @@ export const useGame = () => {
     }
 
     if (formattedWord.length < WORD_MIN_LENGTH) {
-      return WORD.INVALID_LETTERS;
+      return WORD.WORD_TOO_SHORT;
     }
 
     // If the word is not a playable word

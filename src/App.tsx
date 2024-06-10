@@ -42,6 +42,9 @@ function App() {
       case WORD.INVALID_LETTERS:
         showNotification("Mauvaises lettres");
         break;
+      case WORD.WORD_TOO_SHORT:
+        showNotification("Trop court");
+        break;
       case WORD.NOT_FOUND:
         showNotification("Mot inconnu");
         setValue("");
