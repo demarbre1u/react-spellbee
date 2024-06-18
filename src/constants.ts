@@ -17,3 +17,5 @@ export const WORD = {
   CORRECT: "CORRECT",
   PANGRAM: "PANGRAM"
 };
+
+export const DICTIONARY_URL = "https://dictionnaire.lerobert.com/definition";

@@ -1,5 +1,6 @@
 import "./WorList.css";
 
+import { DICTIONARY_URL } from "../../constants";
 import { isPangram } from "../../utils";
 
 type WordListProps = {
@@ -13,12 +14,14 @@ export const WordList = ({ wordsPlayed = [] }: WordListProps) => {
 
       <div className="word-list__list">
         {wordsPlayed.sort().map(word => (
-          <div
+          <a
+            href={`${DICTIONARY_URL}/${word}`}
             key={word}
+            target="_blank"
             className={`${isPangram(word) ? "word-list__list__word--pangram" : "word-list__list__word"}`}
           >
             {word}
-          </div>
+          </a>
         ))}
       </div>
     </div>
